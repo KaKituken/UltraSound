@@ -190,9 +190,10 @@ assign LED = LED_reg;
 //=======================================================
 //  PWM ADC 
 //=======================================================
-parameter   SAMPLE_PERIOD = 32'd1000; // 100M / 100KHz = 100 clocks
+parameter   SAMPLE_PERIOD = 32'd1000; // 100M / 100KHz = 1000 clocks
 reg [31:0]  sample_counter = 32'd0;
 
+// 读音频，1000个clock读一下
 always @(negedge PWM_ADC_CLOCK_100M) begin
 	
 	if(sample_counter >= (SAMPLE_PERIOD - 1)) begin
@@ -207,6 +208,78 @@ always @(negedge PWM_ADC_CLOCK_100M) begin
 	end
 end
 
+
+parameter TERMINAL = 233333;
+parameter Waiting = 0, Reading = 1;
+reg state;		// 当前状态
+reg next;		// 下一个状态
+
+// 读延迟
+reg[31:0] delay_out_csr_readdata;
+reg[31:0] delay_readdata ; 
+reg delay_read = 1'b0; // read command
+reg[31:0] delay_received;
+reg[15:0] index;	// 数组索引
+reg[31:0] PWM_delay[15:0];	// int delay[16]，改一下喇叭数量，到时候用这个储存延迟
+always @(negedge PWM_ADC_CLOCK_100M) begin
+	if(delay_out_csr_readdata > 0) begin
+		delay_read <= 1;
+	end
+	else begin
+		delay_read <= 0;
+	end
+end
+
+always @(posedge PWM_ADC_CLOCK_100M) begin
+	if(delay_read == 1'b1) begin
+			delay_received <= delay_readdata[31:0];
+	end
+end
+
+// 组合逻辑状态转移
+always @(*) begin
+	next = Waiting;
+	case(state)
+		Waiting: begin 
+			if(delay_received == TERMINAL)
+				next = Reading;
+			else next = Waiting;
+		end
+		Reading: begin
+			if(delay_received == TERMINAL)
+				next = Waiting;
+			else
+				next = Reading;
+		end
+		default: next = Waiting;
+	endcase
+end
+// 状态更新
+always @(posedge PWM_ADC_CLOCK_100M) begin
+	state <= next;
+end
+
+always @(posedge PWM_ADC_CLOCK_100M) begin
+	case(next)
+		Waiting: begin
+			if(state == Waiting) begin
+				// do nothing
+			end
+			else begin
+				index <= 0;
+			end
+		end
+		Reading: begin
+			if(state == Waiting) begin
+				index <= 0;
+			end
+			else begin
+				PWM_delay[index] <= delay_received;
+				index <= index + 1;
+			end
+		end
+	endcase
+end
 
 wire PWM_ADC_CLOCK_100M;
 reg [9:0] audio_sample;			// int10 的模拟信号
@@ -234,6 +307,7 @@ assign GPIO_0[9] = PWM_ADC_CLOCK_100M;
 // assign LED[6] = PWM_out;
 // assign LED[7] = PWM_out;
 
+// 测试用，可删
 reg [31:0]PWM_delay1;
 reg [31:0]PWM_delay2;
 reg [31:0]PWM_delay3;
@@ -400,14 +474,14 @@ end
 		.pwm_adc_clk_out_clk_clk               (PWM_ADC_CLOCK_100M),
 		//pwm_adc_clk_out_clk_clk
 		
-		.fifo_delay_pipe_out_readdata          (/*<connected-to-fifo_delay_pipe_out_readdata>*/),          //          fifo_delay_pipe_out.readdata
-      .fifo_delay_pipe_out_read              (/*<connected-to-fifo_delay_pipe_out_read>*/),              //                             .read
+		.fifo_delay_pipe_out_readdata          (delay_readdata),          //          fifo_delay_pipe_out.readdata
+      .fifo_delay_pipe_out_read              (delay_read),              //                             .read
       .fifo_delay_pipe_out_waitrequest       (),       //                             .waitrequest
       .fifo_delay_pipe_out_csr_address       (8'd0),       //      fifo_delay_pipe_out_csr.address
       .fifo_delay_pipe_out_csr_read          (1'b1),          //                             .read
       .fifo_delay_pipe_out_csr_writedata     (),     //                             .writedata
       .fifo_delay_pipe_out_csr_write         (1'b0),         //                             .write
-      .fifo_delay_pipe_out_csr_readdata      (/*<connected-to-fifo_delay_pipe_out_csr_readdata>*/)       //                             .readdata
+      .fifo_delay_pipe_out_csr_readdata      (delay_out_csr_readdata)       //                             .readdata
  );
  
  // Source/Probe megawizard instance

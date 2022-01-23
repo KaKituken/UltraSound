@@ -145,8 +145,7 @@ void calc(){
         double delta_t = delta_d / VELOCITY;
         // printf("### ");
 		// 开始符
-		for(int i = 0; i < 3; i++)
-			FIFO_DELAY_WRITE_BLOCK(233);
+		FIFO_DELAY_WRITE_BLOCK(233333);
 		// 延迟位置
         if(theta > PI / 2){
             int gap =  -delta_t * (NUMBER - 1) * FREQUN;
@@ -165,8 +164,7 @@ void calc(){
         }
         // printf("###\n");
 		// 结束符
-		for(int i = 0; i < 3; i++)
-			FIFO_DELAY_WRITE_BLOCK(233);
+		FIFO_DELAY_WRITE_BLOCK(233333);
     }
 }
 
