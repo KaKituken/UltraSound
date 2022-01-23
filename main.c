@@ -124,6 +124,51 @@ ip/altera/nios2_ip/altera_nios2/HAL/inc/
 #define WRITE_FIFO_EMPTY	  ((*(h2p_lw_FIFO_reg_addr+1))& 2 )
 #define FIFO_WRITE_BLOCK(a)	  {while (WRITE_FIFO_FULL){WAIT};FIFO_WRITE=a;}	// 写入单个音符
 
+#define VELOCITY 340 // 声速，单位m/s
+#define DESTANCE 2   // 喇叭间距，单位cm
+#define NUMBER 10    // 喇叭数量
+#define FREQUN 10000000
+#define PI 3.14159265
+// 读取频率为10M
+
+#define FIFO_DELAY_WRITE		    (*(h2p_FIFO_DELAY_addr))	// HPS to FPGA 
+#define WRITE_FIFO_DELAY_FILL_LEVEL	(*h2p_lw_FIFO_DELAY_reg_addr)
+#define WRITE_FIFO_DELAY_FULL		((*(h2p_lw_FIFO_DELAY_reg_addr+1))& 1 )
+#define WRITE_FIFO_DELAY_EMPTY	  	((*(h2p_lw_FIFO_DELAY_reg_addr+1))& 2 )
+#define FIFO_DELAY_WRITE_BLOCK(a)	{while (WRITE_FIFO_DELAY_FULL){WAIT};FIFO_DELAY_WRITE=a;}	// 写入延迟位置
+
+void calc(){
+    while (1){
+        double theta;
+        scanf("%lf", &theta);
+        double delta_d = DESTANCE * cos(theta) / 100;
+        double delta_t = delta_d / VELOCITY;
+        // printf("### ");
+		// 开始符
+		for(int i = 0; i < 3; i++)
+			FIFO_DELAY_WRITE_BLOCK(233);
+		// 延迟位置
+        if(theta > PI / 2){
+            int gap =  -delta_t * (NUMBER - 1) * FREQUN;
+            for (int i = NUMBER - 1; i >= 0; i--){
+				int pos = (int)(delta_t * i * FREQUN) + gap;
+                // printf("%d ", pos);
+				FIFO_DELAY_WRITE_BLOCK(pos);
+            }
+        }
+        else{
+            for (int i = 0; i < NUMBER; i++){
+				int pos = (int)(delta_t * i * FREQUN);
+                // printf("%d ", pos);
+				FIFO_DELAY_WRITE_BLOCK(pos);
+            }
+        }
+        // printf("###\n");
+		// 结束符
+		for(int i = 0; i < 3; i++)
+			FIFO_DELAY_WRITE_BLOCK(233);
+    }
+}
 
 //	void *h2p_FIFO_addr; //FIFO via AXI master
 //	void *h2p_lw_FIFO_reg_addr; // FIFO register via 
@@ -271,6 +316,21 @@ int main() {
 		printf( "%d\t %d\n", *((uint32_t *)h2p_rom_addr+i),*((uint32_t *)h2p_rom2_addr+i) );
 	}
 
+	// by hjx write the delay
+	volatile unsigned int *h2p_FIFO_DELAY_addr;
+	volatile unsigned int *h2p_lw_FIFO_DELAY_reg_addr;
+	h2p_FIFO_DELAY_addr = axi_virtual_base + ((unsigned long)(0x0 + FIFO_DELAY_BASE)&(unsigned long)(HW_FPGA_AXI_MASK));
+	h2p_lw_FIFO_DELAY_reg_addr = virtual_base + ((unsigned long)(ALT_LWFPGASLVS_OFST + FIFO_DELAY_REG_BASE) & (unsigned long)(HW_REGS_MASK));
+	// create a sub-process to calculate and convey the delay
+	pid_t pid;
+	if((pid = fork()) < 0){
+		printf("Fork Error!\n");
+		exit(1);
+	}
+	else if(pid > 0){	// in the sub-process
+		calc();
+	}
+
 	//Access FIFO
 	struct timeval t1, t2;
 	double elapsedTime;
@@ -336,6 +396,6 @@ int main() {
 	}
 
 	close( fd );
-
+	wait(0);
 	return( 0 );
 }
