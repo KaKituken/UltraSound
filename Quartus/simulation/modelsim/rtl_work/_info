@@ -1,0 +1,73 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/simulation/modelsim
+valtera_edge_detector
+Z1 !s110 1631193803
+!i10b 1
+!s100 7VM>SX5Gaz:Pb6[E`2>j73
+Ii1JP<mCE4mcFBEhbo5T3m2
+Z2 V`JN@9S9cnhjKRR_L]QIcM3
+R0
+w1439906292
+8C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/edge_detect/altera_edge_detector.v
+FC:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/edge_detect/altera_edge_detector.v
+L0 1
+Z3 OV;L;10.3d;59
+r1
+!s85 0
+31
+!s108 1631193803.639000
+!s107 C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/edge_detect/altera_edge_detector.v|
+!s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/edge_detect|C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/edge_detect/altera_edge_detector.v|
+!i113 1
+Z4 o-vlog01compat -work work
+!s92 -vlog01compat -work work +incdir+C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/edge_detect
+vghrd
+R1
+!i10b 1
+!s100 f41MSRRQ0G>=>]hJA3V8>2
+If?]6TLmfh24De3AG8IK3f2
+R2
+R0
+w1631091909
+8C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ghrd.v
+FC:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ghrd.v
+L0 37
+R3
+r1
+!s85 0
+31
+!s108 1631193803.818000
+!s107 C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ghrd.v|
+!s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored|C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ghrd.v|
+!i113 1
+R4
+!s92 -vlog01compat -work work +incdir+C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored
+vhps_reset
+R1
+!i10b 1
+!s100 b?QAZKU6J_iflYK1AR3gi1
+ILdmGSQ>@PoOz2i^7b4e5e1
+R2
+R0
+w1466854547
+8C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/altsource_probe/hps_reset.v
+FC:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/altsource_probe/hps_reset.v
+L0 40
+R3
+r1
+!s85 0
+31
+!s108 1631193803.746000
+!s107 C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/altsource_probe/hps_reset.v|
+!s90 -reportprogress|300|-vlog01compat|-work|work|+incdir+C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/altsource_probe|C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/altsource_probe/hps_reset.v|
+!i113 1
+R4
+!s92 -vlog01compat -work work +incdir+C:/Users/MSI/Documents/atlas/Demonstrations/Access_FIFO_Dev/QuartusCode/soc_system_160807_restored/ip/altsource_probe
