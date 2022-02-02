@@ -60,6 +60,7 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <math.h>
 #include "hwlib.h"
 #include "soc_cv_av/socal/socal.h"
 #include "soc_cv_av/socal/hps.h"
@@ -118,11 +119,22 @@ ip/altera/nios2_ip/altera_nios2/HAL/inc/
 #define FIFO_REG_BASE 0x0100	// 寄存器的base
 #define WAIT {}
 
+#define FIFO_DELAY_BASE 0x40000
+#define FIFO_DELAY_REG_BASE 0x41000
+
+
 #define FIFO_WRITE		     (*(h2p_FIFO_addr))	// HPS to FPGA 
 #define WRITE_FIFO_FILL_LEVEL (*h2p_lw_FIFO_reg_addr)
 #define WRITE_FIFO_FULL		  ((*(h2p_lw_FIFO_reg_addr+1))& 1 )
 #define WRITE_FIFO_EMPTY	  ((*(h2p_lw_FIFO_reg_addr+1))& 2 )
 #define FIFO_WRITE_BLOCK(a)	  {while (WRITE_FIFO_FULL){WAIT};FIFO_WRITE=a;}	// 写入单个音符
+
+
+//	void *h2p_FIFO_addr; //FIFO via AXI master
+//	void *h2p_lw_FIFO_reg_addr; // FIFO register via 
+int CountDelay(double theta){
+    return 0;
+}
 
 #define VELOCITY 340 // 声速，单位m/s
 #define DESTANCE 2   // 喇叭间距，单位cm
@@ -135,44 +147,14 @@ ip/altera/nios2_ip/altera_nios2/HAL/inc/
 #define WRITE_FIFO_DELAY_FILL_LEVEL	(*h2p_lw_FIFO_DELAY_reg_addr)
 #define WRITE_FIFO_DELAY_FULL		((*(h2p_lw_FIFO_DELAY_reg_addr+1))& 1 )
 #define WRITE_FIFO_DELAY_EMPTY	  	((*(h2p_lw_FIFO_DELAY_reg_addr+1))& 2 )
-#define FIFO_DELAY_WRITE_BLOCK(a)	{while (WRITE_FIFO_DELAY_FULL){WAIT};FIFO_DELAY_WRITE=a;}	// 写入延迟位置
-
-void calc(){
-    while (1){
-        double theta;
-        scanf("%lf", &theta);
-        double delta_d = DESTANCE * cos(theta) / 100;
-        double delta_t = delta_d / VELOCITY;
-        // printf("### ");
-		// 开始符
-		FIFO_DELAY_WRITE_BLOCK(233333);
-		// 延迟位置
-        if(theta > PI / 2){
-            int gap =  -delta_t * (NUMBER - 1) * FREQUN;
-            for (int i = NUMBER - 1; i >= 0; i--){
-				int pos = (int)(delta_t * i * FREQUN) + gap;
-                // printf("%d ", pos);
-				FIFO_DELAY_WRITE_BLOCK(pos);
-            }
-        }
-        else{
-            for (int i = 0; i < NUMBER; i++){
-				int pos = (int)(delta_t * i * FREQUN);
-                // printf("%d ", pos);
-				FIFO_DELAY_WRITE_BLOCK(pos);
-            }
-        }
-        // printf("###\n");
-		// 结束符
-		FIFO_DELAY_WRITE_BLOCK(233333);
-    }
-}
-
-//	void *h2p_FIFO_addr; //FIFO via AXI master
-//	void *h2p_lw_FIFO_reg_addr; // FIFO register via 
+#define FIFO_DELAY_WRITE_BLOCK(a)	{while (WRITE_FIFO_DELAY_FULL){WAIT};FIFO_DELAY_WRITE=a;}	// 写入单个音符
 
 
 int main() {
+    // // calculate the delay
+    // double theta;
+    // scanf("%d", &theta);
+    // int delay = CountDelay(theta);
 
 	//pointer to the different address spaces
 	printf( "Hello -1\n" );
@@ -184,8 +166,8 @@ int main() {
 	void *h2p_lw_reg1_addr;
 	void *h2p_lw_reg2_addr;
 	void *h2p_lw_reg3_addr;
-	//void *h2p_lw_myBus_addr;
 	void *h2p_lw_reg_testdelay_addr;
+	//void *h2p_lw_myBus_addr;
 
 
 	void *h2p_led_addr; //led via AXI master
@@ -240,12 +222,12 @@ int main() {
 	h2p_lw_reg1_addr=virtual_base + ( ( unsigned long  )( ALT_LWFPGASLVS_OFST + PIO_REG1_BASE ) & ( unsigned long)( HW_REGS_MASK ) );
 	h2p_lw_reg2_addr=virtual_base + ( ( unsigned long  )( ALT_LWFPGASLVS_OFST + PIO_REG2_BASE ) & ( unsigned long)( HW_REGS_MASK ) );
 	h2p_lw_reg3_addr=virtual_base + ( ( unsigned long  )( ALT_LWFPGASLVS_OFST + PIO_REG3_BASE ) & ( unsigned long)( HW_REGS_MASK ) );
-	h2p_lw_reg_testdelay_addr = virtual_base + ((unsigned long)(ALT_LWFPGASLVS_OFST + ))
-
+	h2p_lw_reg_testdelay_addr = virtual_base + ( ( unsigned long  )( ALT_LWFPGASLVS_OFST + PIO_REG3_BASE ) & ( unsigned long)( HW_REGS_MASK ) );
+	// DEBUG: 上面的宏定义需要编译完之后改
 
 	//write into register to test the adder
 	*(uint32_t *)h2p_lw_reg1_addr = 10;
-	*(uint32_t *)h2p_lw_reg2_addr = 500;
+	*(uint32_t *)h2p_lw_reg2_addr = 5;
 
 	//read result of the adder from register 3
 	printf( "Adder result:%d + %d = %d\n", *((uint32_t *)h2p_lw_reg1_addr), *((uint32_t *)h2p_lw_reg2_addr), *((uint32_t *)h2p_lw_reg3_addr) );
@@ -326,7 +308,34 @@ int main() {
 		exit(1);
 	}
 	else if(pid > 0){	// in the sub-process
-		calc();
+		while (1){
+        	double theta;
+        	scanf("%lf", &theta);
+        	double delta_d = DESTANCE * cos(theta) / 100;
+        	double delta_t = delta_d / VELOCITY;
+        	// printf("### ");
+			// 开始符
+			FIFO_DELAY_WRITE_BLOCK(233333);
+			// 延迟位置
+        	if(theta > PI / 2){
+        	    int gap =  -delta_t * (NUMBER - 1) * FREQUN;
+        	    for (int i = NUMBER - 1; i >= 0; i--){
+					int pos = (int)(delta_t * i * FREQUN) + gap;
+        	        // printf("%d ", pos);
+					FIFO_DELAY_WRITE_BLOCK(pos);
+        	    }
+        	}
+        	else{
+        	    for (int i = 0; i < NUMBER; i++){
+					int pos = (int)(delta_t * i * FREQUN);
+        	        // printf("%d ", pos);
+					FIFO_DELAY_WRITE_BLOCK(pos);
+        	    }
+        	}
+        	// printf("###\n");
+			// 结束符
+			FIFO_DELAY_WRITE_BLOCK(233333);
+    	}
 	}
 
 	//Access FIFO
