@@ -139,7 +139,7 @@ int CountDelay(double theta){
 #define VELOCITY 340 // 声速，单位m/s
 #define DESTANCE 2   // 喇叭间距，单位cm
 #define NUMBER 10    // 喇叭数量
-#define FREQUN 10000000
+#define FREQUN 100000000
 #define PI 3.14159265
 // 读取频率为10M
 

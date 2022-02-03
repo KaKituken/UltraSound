@@ -284,7 +284,7 @@ end
 wire PWM_ADC_CLOCK_100M;
 reg [9:0] audio_sample;			// int10 的模拟信号
 reg [10:0] PWM_accumulator;
-reg [99999:0] queue;				// 延迟队列
+reg [999999:0] queue;			// 延迟队列
 wire [31:0] test_delay;
 reg PWM_out = 1'b0;
 
@@ -296,44 +296,28 @@ assign GPIO_1[8] = PWM_out;
 assign GPIO_0[10] = ~PWM_out;
 assign GPIO_0[9] = PWM_ADC_CLOCK_100M;
 
-// reg [7:0] LED_reg;
-// 用LED灯测试 218行预设
-// assign LED[0] = PWM_out;
-// assign LED[1] = PWM_out;
-// assign LED[2] = PWM_out;
-// assign LED[3] = PWM_out;
-// assign LED[4] = PWM_out;
-// assign LED[5] = PWM_out;
-// assign LED[6] = PWM_out;
-// assign LED[7] = PWM_out;
 
-// 测试用，可删
-reg [31:0]PWM_delay1;
-reg [31:0]PWM_delay2;
-reg [31:0]PWM_delay3;
-reg [31:0]PWM_delay4;
-reg [31:0]PWM_delay5;
-reg [31:0]PWM_delay6;
-reg [31:0]PWM_delay7;
 
 // 延时模块
 always @(*) begin
-	PWM_delay1 = reg2_to_add;
-	PWM_delay2 = 2 * reg2_to_add;
-	PWM_delay3 = 3 * reg2_to_add;
-	PWM_delay4 = 4 * reg2_to_add;
-	PWM_delay5 = 5 * reg2_to_add;
-	PWM_delay6 = 6 * reg2_to_add;
-	PWM_delay7 = 7 * reg2_to_add;
-	// LED信号连接到队列里
-	LED_reg[0] = queue[0];
-	LED_reg[1] = queue[PWM_delay1];
-	LED_reg[2] = queue[PWM_delay2];
-	LED_reg[3] = queue[PWM_delay3];
-	LED_reg[4] = queue[PWM_delay4];
-	LED_reg[5] = queue[PWM_delay5];
-	LED_reg[6] = queue[PWM_delay6];
-	LED_reg[7] = queue[PWM_delay7];
+	// 测试延时队列是否可用
+	// LED_reg[0] = queue[0];
+	// LED_reg[1] = queue[999999];
+	// LED_reg[2] = queue[0];
+	// LED_reg[3] = queue[999999];
+	// LED_reg[4] = queue[0];
+	// LED_reg[5] = queue[999999];
+	// LED_reg[6] = queue[0];
+	// LED_reg[7] = queue[999999];
+	// 最终测试
+	LED_reg[0] = queue[PWM_delay[0]];
+	LED_reg[1] = queue[PWM_delay[2]];
+	LED_reg[2] = queue[PWM_delay[4]];
+	LED_reg[3] = queue[PWM_delay[6]];
+	LED_reg[4] = queue[PWM_delay[8]];
+	LED_reg[5] = queue[PWM_delay[10]];
+	LED_reg[6] = queue[PWM_delay[12]];
+	LED_reg[7] = queue[PWM_delay[14]];
 end
 
 always @(posedge PWM_ADC_CLOCK_100M) begin
@@ -356,7 +340,7 @@ always @(posedge PWM_ADC_CLOCK_100M) begin
 		PWM_accumulator <= PWM_accumulator + audio_sample;
 	end
 	// 把PWM_out送入队列
-	queue <= {queue[99999:1], PWM_out};
+	queue <= {queue[999998:0], PWM_out};
 end
 
 //reg PWM_out_1 = 1'b0;
