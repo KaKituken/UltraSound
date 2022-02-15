@@ -214,13 +214,16 @@ parameter Waiting = 0, Reading = 1;
 reg state;		// 当前状态
 reg next;		// 下一个状态
 
-// 读延迟
+// 读延迟，目前来说没有用了，可以删
 reg[31:0] delay_out_csr_readdata;
 reg[31:0] delay_readdata ; 
 reg delay_read = 1'b0; // read command
 reg[31:0] delay_received;
+// ----------动态的，不太可------------
 reg[15:0] index;	// 数组索引
 reg[31:0] PWM_delay[15:0];	// int delay[16]，改一下喇叭数量，到时候用这个储存延迟
+// -----------------------------------
+reg[3:0] position;	// 离散的5个位置
 always @(negedge PWM_ADC_CLOCK_100M) begin
 	if(delay_out_csr_readdata > 0) begin
 		delay_read <= 1;
@@ -274,8 +277,9 @@ always @(posedge PWM_ADC_CLOCK_100M) begin
 				index <= 0;
 			end
 			else begin
-				PWM_delay[index] <= delay_received;
-				index <= index + 1;
+				// PWM_delay[index] <= delay_received;
+				// index <= index + 1;
+				position = delay_received[3:0];
 			end
 		end
 	endcase
@@ -297,27 +301,112 @@ assign GPIO_0[10] = ~PWM_out;
 assign GPIO_0[9] = PWM_ADC_CLOCK_100M;
 
 
-
+parameter FRONT = 0, LEFTFRONT = 1, LEFT = 2, RIGHTFRONT = 3, RIGHT = 4;
 // 延时模块
 always @(*) begin
-	// 测试延时队列是否可用
-	// LED_reg[0] = queue[0];
-	// LED_reg[1] = queue[999999];
-	// LED_reg[2] = queue[0];
-	// LED_reg[3] = queue[999999];
-	// LED_reg[4] = queue[0];
-	// LED_reg[5] = queue[999999];
-	// LED_reg[6] = queue[0];
-	// LED_reg[7] = queue[999999];
-	// 最终测试
-	LED_reg[0] = queue[PWM_delay[0]];
-	LED_reg[1] = queue[PWM_delay[2]];
-	LED_reg[2] = queue[PWM_delay[4]];
-	LED_reg[3] = queue[PWM_delay[6]];
-	LED_reg[4] = queue[PWM_delay[8]];
-	LED_reg[5] = queue[PWM_delay[10]];
-	LED_reg[6] = queue[PWM_delay[12]];
-	LED_reg[7] = queue[PWM_delay[14]];
+	// 最终测试,过不了
+	// LED_reg[0] = queue[PWM_delay[0]];
+	// LED_reg[1] = queue[PWM_delay[2]];
+	// LED_reg[2] = queue[PWM_delay[4]];
+	// LED_reg[3] = queue[PWM_delay[6]];
+	// LED_reg[4] = queue[PWM_delay[8]];
+	// LED_reg[5] = queue[PWM_delay[10]];
+	// LED_reg[6] = queue[PWM_delay[12]];
+	// LED_reg[7] = queue[PWM_delay[14]];
+	case(reg2_to_add)
+		FRONT: begin
+			LED_reg[0] = queue[0];
+			LED_reg[1] = queue[0];
+			LED_reg[2] = queue[0];
+			LED_reg[3] = queue[0];
+			LED_reg[4] = queue[0];
+			LED_reg[5] = queue[0];
+			LED_reg[6] = queue[0];
+			LED_reg[7] = queue[0];
+		end
+		LEFTFRONT: begin
+			LED_reg[0] = queue[0];
+			LED_reg[1] = queue[4159];
+			LED_reg[2] = queue[8318];
+			LED_reg[3] = queue[12478];
+			LED_reg[4] = queue[16637];
+			LED_reg[5] = queue[20797];
+			LED_reg[6] = queue[24956];
+			LED_reg[7] = queue[29116];
+			/*LED_reg[0] = queue[0];
+			LED_reg[1] = queue[0];
+			LED_reg[2] = queue[0];
+			LED_reg[3] = queue[0];
+			LED_reg[4] = queue[999999];
+			LED_reg[5] = queue[999999];
+			LED_reg[6] = queue[999999];
+			LED_reg[7] = queue[999999];*/
+		end
+		LEFT: begin
+			LED_reg[0] = queue[0];
+			LED_reg[1] = queue[5882];
+			LED_reg[2] = queue[11764];
+			LED_reg[3] = queue[17647];
+			LED_reg[4] = queue[23529];
+			LED_reg[5] = queue[29411];
+			LED_reg[6] = queue[35294];
+			LED_reg[7] = queue[41176];
+			/*LED_reg[0] = queue[0];
+			LED_reg[1] = queue[999999];
+			LED_reg[2] = queue[0];
+			LED_reg[3] = queue[999999];
+			LED_reg[4] = queue[0];
+			LED_reg[5] = queue[999999];
+			LED_reg[6] = queue[0];
+			LED_reg[7] = queue[999999];*/
+		end
+		RIGHTFRONT: begin
+			LED_reg[7] = queue[0];
+			LED_reg[6] = queue[4159];
+			LED_reg[5] = queue[8318];
+			LED_reg[4] = queue[12478];
+			LED_reg[3] = queue[16637];
+			LED_reg[2] = queue[20797];
+			LED_reg[1] = queue[24956];
+			LED_reg[0] = queue[29116];
+			/*LED_reg[0] = queue[999999];
+			LED_reg[1] = queue[999999];
+			LED_reg[2] = queue[999999];
+			LED_reg[3] = queue[999999];
+			LED_reg[4] = queue[0];
+			LED_reg[5] = queue[0];
+			LED_reg[6] = queue[0];
+			LED_reg[7] = queue[0];*/
+		end
+		RIGHT: begin
+			LED_reg[7] = queue[0];
+			LED_reg[6] = queue[5882];
+			LED_reg[5] = queue[11764];
+			LED_reg[4] = queue[17647];
+			LED_reg[3] = queue[23529];
+			LED_reg[2] = queue[29411];
+			LED_reg[1] = queue[35294];
+			LED_reg[0] = queue[41176];
+			/*LED_reg[0] = queue[999999];
+			LED_reg[1] = queue[0];
+			LED_reg[2] = queue[999999];
+			LED_reg[3] = queue[0];
+			LED_reg[4] = queue[999999];
+			LED_reg[5] = queue[0];
+			LED_reg[6] = queue[999999];
+			LED_reg[7] = queue[0];*/
+		end
+		default: begin
+			LED_reg[0] = queue[0];
+			LED_reg[1] = queue[0];
+			LED_reg[2] = queue[0];
+			LED_reg[3] = queue[0];
+			LED_reg[4] = queue[0];
+			LED_reg[5] = queue[0];
+			LED_reg[6] = queue[0];
+			LED_reg[7] = queue[0];
+		end
+	endcase
 end
 
 always @(posedge PWM_ADC_CLOCK_100M) begin

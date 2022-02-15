@@ -138,7 +138,7 @@ int CountDelay(double theta){
 
 #define VELOCITY 340 // 声速，单位m/s
 #define DESTANCE 2   // 喇叭间距，单位cm
-#define NUMBER 10    // 喇叭数量
+#define NUMBER 16    // 喇叭数量
 #define FREQUN 100000000
 #define PI 3.14159265
 // 读取频率为10M
@@ -302,6 +302,7 @@ int main() {
 	h2p_FIFO_DELAY_addr = axi_virtual_base + ((unsigned long)(0x0 + FIFO_DELAY_BASE)&(unsigned long)(HW_FPGA_AXI_MASK));
 	h2p_lw_FIFO_DELAY_reg_addr = virtual_base + ((unsigned long)(ALT_LWFPGASLVS_OFST + FIFO_DELAY_REG_BASE) & (unsigned long)(HW_REGS_MASK));
 	// create a sub-process to calculate and convey the delay
+	*(uint32_t *)h2p_lw_reg2_addr = 0;
 	pid_t pid;
 	if((pid = fork()) < 0){
 		printf("Fork Error!\n");
@@ -309,32 +310,37 @@ int main() {
 	}
 	else if(pid > 0){	// in the sub-process
 		while (1){
-        	double theta;
+        	/*double theta;
         	scanf("%lf", &theta);
         	double delta_d = DESTANCE * cos(theta) / 100;
         	double delta_t = delta_d / VELOCITY;
-        	// printf("### ");
+        	printf("### ");
 			// 开始符
 			FIFO_DELAY_WRITE_BLOCK(233333);
 			// 延迟位置
         	if(theta > PI / 2){
-        	    int gap =  -delta_t * (NUMBER - 1) * FREQUN;
         	    for (int i = NUMBER - 1; i >= 0; i--){
-					int pos = (int)(delta_t * i * FREQUN) + gap;
-        	        // printf("%d ", pos);
+					int pos = abs((int)(delta_t * i * FREQUN));
+        	        printf("%d ", pos);
 					FIFO_DELAY_WRITE_BLOCK(pos);
         	    }
         	}
         	else{
         	    for (int i = 0; i < NUMBER; i++){
 					int pos = (int)(delta_t * i * FREQUN);
-        	        // printf("%d ", pos);
+        	        printf("%d ", pos);
 					FIFO_DELAY_WRITE_BLOCK(pos);
         	    }
         	}
-        	// printf("###\n");
+        	printf("###\n");
 			// 结束符
-			FIFO_DELAY_WRITE_BLOCK(233333);
+			FIFO_DELAY_WRITE_BLOCK(233333);*/
+			int pattern = 100;
+			while(pattern > 10){
+				scanf("%d", &pattern);
+			}
+			*(uint32_t *)h2p_lw_reg2_addr = pattern;
+			printf( "the pattern is:%d\n", *((uint32_t *)h2p_lw_reg2_addr));
     	}
 	}
 
@@ -404,5 +410,6 @@ int main() {
 
 	close( fd );
 	wait(0);
+	printf("waiting\n");
 	return( 0 );
 }
