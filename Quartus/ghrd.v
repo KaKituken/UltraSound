@@ -292,29 +292,84 @@ reg [999999:0] queue;			// 延迟队列
 wire [31:0] test_delay;
 reg PWM_out = 1'b0;
 
-assign GPIO_0[8] = PWM_out;
-assign GPIO_0[1] = PWM_out;
-assign GPIO_0[2] = PWM_out;
-assign GPIO_1[8] = PWM_out;
 
-assign GPIO_0[10] = ~PWM_out;
-assign GPIO_0[9] = PWM_ADC_CLOCK_100M;
+reg gpio[63:0];
+
+assign GPIO_1[0] = gpio[0];
+assign GPIO_1[1] = gpio[8];
+assign GPIO_1[2] = gpio[16];
+assign GPIO_1[3] = gpio[24];
+assign GPIO_1[4] = gpio[1];
+assign GPIO_1[5] = gpio[9];
+assign GPIO_1[6] = gpio[17];
+assign GPIO_1[7] = gpio[25];
+assign GPIO_1[8] = gpio[2];
+assign GPIO_1[9] = gpio[10];
+assign GPIO_1[10] = gpio[18];
+assign GPIO_1[11] = gpio[26];
+assign GPIO_1[12] = gpio[3];
+assign GPIO_1[13] = gpio[11];
+assign GPIO_1[14] = gpio[19];
+assign GPIO_1[15] = gpio[27];
+assign GPIO_1[16] = gpio[4];
+assign GPIO_1[17] = gpio[12];
+assign GPIO_1[18] = gpio[20];
+assign GPIO_1[19] = gpio[28];
+assign GPIO_1[20] = gpio[5];
+assign GPIO_1[21] = gpio[13];
+assign GPIO_1[22] = gpio[21];
+assign GPIO_1[23] = gpio[29];
+assign GPIO_1[28] = gpio[6];
+assign GPIO_1[29] = gpio[14];
+assign GPIO_1[30] = gpio[22];
+assign GPIO_1[31] = gpio[30];
+assign GPIO_1[32] = gpio[7];
+assign GPIO_1[33] = gpio[15];
+assign GPIO_1[34] = gpio[23];
+assign GPIO_1[35] = gpio[31];
+
+assign GPIO_0[0] = gpio[47];
+assign GPIO_0[1] = gpio[39];
+assign GPIO_0[2] = gpio[63];
+assign GPIO_0[3] = gpio[55];
+assign GPIO_0[4] = gpio[46];
+assign GPIO_0[5] = gpio[38];
+assign GPIO_0[6] = gpio[62];
+assign GPIO_0[7] = gpio[54];
+assign GPIO_0[12] = gpio[45];
+assign GPIO_0[13] = gpio[37];
+assign GPIO_0[14] = gpio[61];
+assign GPIO_0[15] = gpio[53];
+assign GPIO_0[16] = gpio[44];
+assign GPIO_0[17] = gpio[36];
+assign GPIO_0[18] = gpio[60];
+assign GPIO_0[19] = gpio[52];
+assign GPIO_0[20] = gpio[43];
+assign GPIO_0[21] = gpio[35];
+assign GPIO_0[22] = gpio[59];
+assign GPIO_0[23] = gpio[51];
+assign GPIO_0[24] = gpio[42];
+assign GPIO_0[25] = gpio[34];
+assign GPIO_0[26] = gpio[58];
+assign GPIO_0[27] = gpio[50];
+assign GPIO_0[28] = gpio[41];
+assign GPIO_0[29] = gpio[33];
+assign GPIO_0[30] = gpio[57];
+assign GPIO_0[31] = gpio[49];
+assign GPIO_0[32] = gpio[40];
+assign GPIO_0[33] = gpio[32];
+assign GPIO_0[34] = gpio[56];
+assign GPIO_0[35] = gpio[48];
 
 
 parameter FRONT = 0, LEFTFRONT = 1, LEFT = 2, RIGHTFRONT = 3, RIGHT = 4;
 // 延时模块
-always @(*) begin
-	// 最终测试,过不了
-	// LED_reg[0] = queue[PWM_delay[0]];
-	// LED_reg[1] = queue[PWM_delay[2]];
-	// LED_reg[2] = queue[PWM_delay[4]];
-	// LED_reg[3] = queue[PWM_delay[6]];
-	// LED_reg[4] = queue[PWM_delay[8]];
-	// LED_reg[5] = queue[PWM_delay[10]];
-	// LED_reg[6] = queue[PWM_delay[12]];
-	// LED_reg[7] = queue[PWM_delay[14]];
+always @(posedge PWM_ADC_CLOCK_100M) begin
+	integer i;
 	case(reg2_to_add)
 		FRONT: begin
+			for (i = 0; i < 64; i = i + 1)
+				gpio[i] = queue[0];
 			LED_reg[0] = queue[0];
 			LED_reg[1] = queue[0];
 			LED_reg[2] = queue[0];
@@ -325,6 +380,8 @@ always @(*) begin
 			LED_reg[7] = queue[0];
 		end
 		LEFTFRONT: begin
+			for (i = 0; i < 64; i = i + 1)
+				gpio[i] = queue[4159 * (i / 8)];
 			LED_reg[0] = queue[0];
 			LED_reg[1] = queue[4159];
 			LED_reg[2] = queue[8318];
@@ -333,16 +390,10 @@ always @(*) begin
 			LED_reg[5] = queue[20797];
 			LED_reg[6] = queue[24956];
 			LED_reg[7] = queue[29116];
-			/*LED_reg[0] = queue[0];
-			LED_reg[1] = queue[0];
-			LED_reg[2] = queue[0];
-			LED_reg[3] = queue[0];
-			LED_reg[4] = queue[999999];
-			LED_reg[5] = queue[999999];
-			LED_reg[6] = queue[999999];
-			LED_reg[7] = queue[999999];*/
 		end
 		LEFT: begin
+			for (i = 0; i < 64; i = i + 1)
+				gpio[i] = queue[5882 * (i / 8)];
 			LED_reg[0] = queue[0];
 			LED_reg[1] = queue[5882];
 			LED_reg[2] = queue[11764];
@@ -351,16 +402,10 @@ always @(*) begin
 			LED_reg[5] = queue[29411];
 			LED_reg[6] = queue[35294];
 			LED_reg[7] = queue[41176];
-			/*LED_reg[0] = queue[0];
-			LED_reg[1] = queue[999999];
-			LED_reg[2] = queue[0];
-			LED_reg[3] = queue[999999];
-			LED_reg[4] = queue[0];
-			LED_reg[5] = queue[999999];
-			LED_reg[6] = queue[0];
-			LED_reg[7] = queue[999999];*/
 		end
 		RIGHTFRONT: begin
+			for (i = 0; i < 64; i = i + 1)
+				gpio[i] = queue[4159 * (7 - (i / 8))];
 			LED_reg[7] = queue[0];
 			LED_reg[6] = queue[4159];
 			LED_reg[5] = queue[8318];
@@ -369,16 +414,10 @@ always @(*) begin
 			LED_reg[2] = queue[20797];
 			LED_reg[1] = queue[24956];
 			LED_reg[0] = queue[29116];
-			/*LED_reg[0] = queue[999999];
-			LED_reg[1] = queue[999999];
-			LED_reg[2] = queue[999999];
-			LED_reg[3] = queue[999999];
-			LED_reg[4] = queue[0];
-			LED_reg[5] = queue[0];
-			LED_reg[6] = queue[0];
-			LED_reg[7] = queue[0];*/
 		end
 		RIGHT: begin
+			for (i = 0; i < 64; i = i + 1)
+				gpio[i] = queue[5882 * (7 - (i / 8))];
 			LED_reg[7] = queue[0];
 			LED_reg[6] = queue[5882];
 			LED_reg[5] = queue[11764];
@@ -387,16 +426,10 @@ always @(*) begin
 			LED_reg[2] = queue[29411];
 			LED_reg[1] = queue[35294];
 			LED_reg[0] = queue[41176];
-			/*LED_reg[0] = queue[999999];
-			LED_reg[1] = queue[0];
-			LED_reg[2] = queue[999999];
-			LED_reg[3] = queue[0];
-			LED_reg[4] = queue[999999];
-			LED_reg[5] = queue[0];
-			LED_reg[6] = queue[999999];
-			LED_reg[7] = queue[0];*/
 		end
 		default: begin
+			for (i = 0; i < 64; i = i + 1)
+				gpio[i] = queue[0];
 			LED_reg[0] = queue[0];
 			LED_reg[1] = queue[0];
 			LED_reg[2] = queue[0];
@@ -432,9 +465,6 @@ always @(posedge PWM_ADC_CLOCK_100M) begin
 	queue <= {queue[999998:0], PWM_out};
 end
 
-//reg PWM_out_1 = 1'b0;
-//assign GPIO_0[12] = PWM_out_1;
-//assign GPIO_0[13] = PWM_out_1;
 
 
 //=======================================================

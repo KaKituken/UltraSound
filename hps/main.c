@@ -360,7 +360,7 @@ int main() {
 	//h2p_led_addr=axi_virtual_base + ( ( unsigned long  )( 0x0 + PIO_LED_BASE ) & ( unsigned long)( HW_FPGA_AXI_MASK ) );
 	//-------------------------------------------------------------
 	// clean up our memory mapping and exit
-
+	while(1){
 	// TODO: 写文件
 	FILE *fp;
     fp = fopen("./40k_lut.txt", "r");
@@ -411,5 +411,6 @@ int main() {
 	close( fd );
 	wait(0);
 	printf("waiting\n");
+	}
 	return( 0 );
 }
